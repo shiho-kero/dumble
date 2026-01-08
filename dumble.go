@@ -1,10 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
 
 	"github.com/gocraft/dbr/v2"
+	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -20,10 +22,28 @@ func main() {
 	sess := conn.NewSession(nil)
 	fmt.Println("Database connection established.")
 
-	dumble, err := getDumble(sess, 3)
-	fmt.Println("Fetched Dumble:", dumble, "Error:", err)
+	/*
+		dumble, err := getDumble(sess, 3)
+		fmt.Println("Fetched Dumble:", dumble, "Error:", err)
 
-	out, _ := json.MarshalIndent(dumble, "", "  ")
-	fmt.Println(string(out))
+		out, _ := json.MarshalIndent(dumble, "", "  ")
+		fmt.Println(string(out))
+	*/
 
+	// Start Echo Server
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Welcome to the Dumble API!")
+	})
+
+	e.GET("/dumble/:id", func(c echo.Context) error {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+		}
+		dumble, err := getDumble(sess, id)
+		return c.JSON(http.StatusOK, map[string]interface{}{"data": dumble, "error": err})
+	})
+	e.Logger.Fatal(e.Start(":8080"))
 }
