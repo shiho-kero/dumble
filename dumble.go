@@ -45,5 +45,14 @@ func main() {
 		dumble, err := getDumble(sess, id)
 		return c.JSON(http.StatusOK, map[string]interface{}{"data": dumble, "error": err})
 	})
+
+	e.GET("/dumbles", func(c echo.Context) error {
+		dumbles, err := getAllDumbles(sess)
+		return c.JSON(http.StatusOK, map[string]interface{}{"data": dumbles, "error": err})
+	})
+
 	e.Logger.Fatal(e.Start(":8080"))
+
+	fmt.Println("Goodbye")
+
 }

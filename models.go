@@ -20,3 +20,12 @@ func getDumble(sess *dbr.Session, id int) (*Dumble, error) {
 	}
 	return dumble, nil
 }
+
+func getAllDumbles(sess *dbr.Session) ([]Dumble, error) {
+	var dumbles []Dumble
+	_, err := sess.Select("*").From("dumbles").Load(&dumbles)
+	if err != nil {
+		return nil, err
+	}
+	return dumbles, nil
+}
