@@ -51,6 +51,21 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]interface{}{"data": dumbles, "error": err})
 	})
 
+	// Add Likes by id
+	e.GET("/dumble/:id/like", func(c echo.Context) error {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+		}
+		_, err = sess.Update("dumbles").Set("likes", dbr.Expr("likes + 1")).Where("dumble_id = ?", id).Exec()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to add like"})
+		}
+		dumble, err := getDumble(sess, id)
+		return c.JSON(http.StatusOK, map[string]interface{}{"data": dumble, "error": err})
+	})
+
 	e.Logger.Fatal(e.Start(":8080"))
 
 	fmt.Println("Goodbye")
